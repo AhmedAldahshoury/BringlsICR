@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta >
+<head>
+    <meta charset="UTF-8">
+    <title>Bringls OCR</title>
+
+
+</head>
+<h1>Bringls OCR</h1>
+
+<!--
+<div class="caption" style="top: 10%;">
+    <titlee style="color:#1CAC78 ; font-size:60px;">Bringls OCR</titlee>
+</div>
+
+
+<img src="{{url_for('static', filename='giving.png')}}{{image}}"></img>
+
+-->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+<script src="{{ url_for('static', filename='js/index.js')}}"></script>
+<script src="{{ url_for('static', filename='js/terminal.js')}}"></script>
+
+<form action="{{ url_for('index') }}" method="POST">
+    <div class="image-title-wrap">
+        <input type="submit" name="image" value="Homepage" class="function-button"></input>
+    </div>
+</form>
+<br>
+<div class="terminal" id="terminal" http-equiv="refresh" content="5">
+    <h2>Console:</h2>
+    <br>
+    <p id="textHolder"> </p>
+</div>
+
+<body>
+
+<br>
+<br>
+
+
+<form action="{{ url_for('augment') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="Augment" class="function-button"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('generateDB') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="generate DB" class="function-button"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('train') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="Train" class="function-button"></input>
+    </div>
+</form>
+
+</body>
+
+</html>
+<!--
+
+<div id="segmentation-buttons">
+    <form action="{{ url_for('targetText') }}" method="POST" enctype="multipart/form-data">
+        <div class="image-title-wrap">
+            <input type="submit" value="Define Target Text" class="function-button"></input>
+        </div>
+    </form>
+
+    <form action="{{ url_for('augment') }}" method="POST" enctype="multipart/form-data">
+        <div class="image-title-wrap">
+            <input type="submit" value="Augment" class="function-button"></input>
+        </div>
+    </form>
+
+
+    <form action="{{ url_for('train') }}" method="POST" enctype="multipart/form-data">
+        <div class="image-title-wrap">
+            <input type="submit" value="Train" class="function-button"></input>
+        </div>
+    </form>
+
+</div>
+
+
+ <div id="particles-background" class="vertical-centered-box"></div>
+
+ <div id="particles-foreground" class="vertical-centered-box"></div>
+
+
+<script>
+
+    $("#file-picker").change(function(){
+
+        var input = document.getElementById('file-picker');
+
+        for (var i=0; i<input.files.length; i++)
+        {
+        //koala.jpg, koala.JPG substring(index) lastIndexOf('a') koala.1.jpg
+            var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+
+            if (ext == 'png')
+            {
+                $("#msg").text("Files are supported")
+            }
+            else
+            {
+                $("#msg").text("Files are NOT supported")
+                document.getElementById("file-picker").value ="";
+            }
+
+        }
+
+
+    } );
+</script>
+-->

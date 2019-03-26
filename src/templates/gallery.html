@@ -1,0 +1,46 @@
+<!DOCTYPE=html>
+<html>
+<head>
+    <title>
+        Gallery
+    </title>
+</head>
+<body>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+
+<form action="{{ url_for('index') }}" method="POST">
+    <div class="image-title-wrap">
+        <input type="submit" name="image" value="Homepage" class="function-button"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('deleteAll') }}" method="POST">
+    <div class="image-title-wrap">
+        <input type="submit" name="image" value="Delete All" class="function-button"></input>
+    </div>
+</form>
+
+{{first_event}} {{second_event}}
+{% for image in images %}
+<form action="{{ url_for('remove') }}" method="POST">
+    <div class="image-title-wrap">
+        <img name="image" src="{{url_for('static', filename=image)}}" alt="{{images}}">
+        <input type="hidden" name="image" value="{{image}}">
+        <br>
+        <input type="submit" name="image" value="Delete" class="function-button"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('save') }}" method="POST">
+    <div class="image-title-wrap">
+        <input type="hidden" name="image" value="{{image}}">
+        <input type="text" name="targetText">
+        <input type="submit" name="image" value="Save" class="function-button"></input>
+    </div>
+</form>
+<br>
+<br>
+{% endfor %}
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bringls OCR</title>
+
+
+</head>
+<h1>Bringls OCR</h1>
+
+<!--
+<div class="caption" style="top: 10%;">
+    <titlee style="color:#1CAC78 ; font-size:60px;">Bringls OCR</titlee>
+</div>
+
+
+<img src="{{url_for('static', filename='giving.png')}}{{image}}"></img>
+
+-->
+<body>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+<script src="{{ url_for('static', filename='js/index.js')}}"></script>
+
+
+<form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+
+    <div class="file-upload">
+
+        <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Add Image
+        </button>
+        <div class="image-upload-wrap">
+            <input class="file-upload-input" id="file-picker" name="file" type="file" onchange="readURL(this);"
+                   accept="image/png" multiple/>
+            <div class="drag-text">
+                <h3>Drag and drop a file or select add Image</h3>
+            </div>
+
+        </div>
+        <div class="file-upload-content">
+            <img class="file-upload-image" src="#" alt="your image"/>
+            <div class="image-title-wrap">
+                <input type="submit" value="Upload" id="upload-button" class="remove-image"></input>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<form action="{{ url_for('recognize') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="Recognize" class="function-button"  onclick="segment()"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('segment') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="Train" class="function-button"></input>
+    </div>
+</form>
+<!--
+<form action="{{ url_for('augment') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="Augment" class="function-button"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('generateDB') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="generate DB" class="function-button"></input>
+    </div>
+</form>
+
+<form action="{{ url_for('train') }}" method="POST" enctype="multipart/form-data">
+    <div class="image-title-wrap">
+        <input type="submit" value="Train" class="function-button"></input>
+    </div>
+</form>
+-->
+</body>
+
+</html>
+<!--
+
+<div id="segmentation-buttons">
+    <form action="{{ url_for('targetText') }}" method="POST" enctype="multipart/form-data">
+        <div class="image-title-wrap">
+            <input type="submit" value="Define Target Text" class="function-button"></input>
+        </div>
+    </form>
+
+    <form action="{{ url_for('augment') }}" method="POST" enctype="multipart/form-data">
+        <div class="image-title-wrap">
+            <input type="submit" value="Augment" class="function-button"></input>
+        </div>
+    </form>
+
+
+    <form action="{{ url_for('train') }}" method="POST" enctype="multipart/form-data">
+        <div class="image-title-wrap">
+            <input type="submit" value="Train" class="function-button"></input>
+        </div>
+    </form>
+
+</div>
+
+
+ <div id="particles-background" class="vertical-centered-box"></div>
+
+ <div id="particles-foreground" class="vertical-centered-box"></div>
+
+
+<script>
+
+    $("#file-picker").change(function(){
+
+        var input = document.getElementById('file-picker');
+
+        for (var i=0; i<input.files.length; i++)
+        {
+        //koala.jpg, koala.JPG substring(index) lastIndexOf('a') koala.1.jpg
+            var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+
+            if (ext == 'png')
+            {
+                $("#msg").text("Files are supported")
+            }
+            else
+            {
+                $("#msg").text("Files are NOT supported")
+                document.getElementById("file-picker").value ="";
+            }
+
+        }
+
+
+    } );
+</script>
+-->
