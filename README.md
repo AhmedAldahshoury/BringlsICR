@@ -24,13 +24,13 @@ To setup the system on local device do the following:
 ```
 source ./venv/bin/activate  # sh, bash, ksh, or zsh\\n
 ```
-5. Navigate to **Src** file using the following command:
+5. Navigate to **src** folder using the following command:
 ```
-$ cd Src
+$ cd src
 ```
 6. **App.py** is the script responsible for running the web application. you can run it using the following command:
 ```
-$ pyhton app.py
+$ python app.py
 ```
 7. You can modify the hosting port inside that script. By default the web interface is hosted on local host at port 4555. You can open the webpage on any browser using the following link :
 ```
