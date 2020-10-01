@@ -82,9 +82,6 @@ if not os.path.exists("../dataset/rawGS"):
 # cv2.imwrite("../dataset/results/"+image+"/"+image+"_grayscale.png", gray_complete)
 
 height, width = gray_complete.shape
-print(gray_complete_inv.copy())
-print(cv2.RETR_EXTERNAL)
-print(cv2.CHAIN_APPROX_SIMPLE)
 cnts, _ = cv2.findContours(gray_complete_inv.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 avgCntArea = np.mean([cv2.contourArea(k) for k in cnts])
 if (invert):

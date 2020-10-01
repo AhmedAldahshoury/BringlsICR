@@ -2,11 +2,11 @@ import os, sys
 from flask import Flask, render_template, request
 from shutil import copyfile
 from flask import jsonify
+from pathlib import Path
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
 app = Flask(__name__)
-
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+APP_ROOT = Path(__file__).resolve().parents[1]
 
 
 @app.route("/")
@@ -18,22 +18,23 @@ def index():
 def upload():
     print("----------------------------Uploading Started--------------------------------")
 
-    target = os.path.join(APP_ROOT, '../dataset/raw')
-    uploadDir = os.path.join(APP_ROOT, 'static/uploadsTemp')
-
+    target = os.path.join(APP_ROOT, 'dataset', 'raw')
     if not os.path.isdir(target):
         os.mkdir(target)
+    uploadDir = os.path.join(APP_ROOT, 'src', 'static', 'uploadsTemp')
+    if not os.path.isdir(uploadDir):
+        os.mkdir(uploadDir)
 
-    print(str(len(request.files.getlist("file"))) + " images selected ")
+    print('{} images selected'.format(len(request.files.getlist("file"))))
     counter = 1
     for file in request.files.getlist("file"):
         filename = file.filename
-        saveDes = "/".join([target, filename])
-        uploadDes = "/".join([uploadDir, filename])
-        file.save(saveDes)
-        copyfile(saveDes, uploadDes)
+        save_des = os.path.join(target, filename)
+        upload_des = os.path.join(uploadDir, filename)
+        file.save(save_des)
+        copyfile(save_des, upload_des)
         filename = filename.replace('.png', '')
-        print(str(counter) + " -- (" + filename + ".png) uploaded")
+        print('{} -- ({}.png uploaded)'.format(counter, filename))
         counter += 1
 
     print("Images uploaded successfully")
@@ -46,24 +47,24 @@ def recognize():
     threshold = 10
     f = open('../model/wordCharList.txt', 'w+')
 
-    folders = os.listdir('../dataset/segmented')
+    folders = os.listdir(os.path.join(APP_ROOT, 'dataset', 'segmented'))
     folders = [folder for folder in folders if '.DS_Store' not in folder]
     for folder in folders:
-        files = os.listdir('../dataset/segmented/' + str(folder))
+        files = os.listdir(os.path.join(APP_ROOT, 'dataset', 'segmented', str(folder)))
         files = [file for file in files if '.DS_Store' not in file]
         if len(files) > threshold:
             f.write("%s\n" % folder)
     f.close()
 
-    images = os.listdir('static/gallery')
+    images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
     images = [image for image in images if '.DS_Store' not in image]
 
     for image in images:
-        os.unlink(os.path.join(APP_ROOT, 'static/gallery/' + image))
+        os.unlink(os.path.join(APP_ROOT, 'src', 'static', 'gallery', image))
 
     print("---------------------------Recognition Started---------------------------------")
-    folderDir = os.path.join(APP_ROOT, 'static/uploadsTemp')
-    images = os.listdir('static/uploadsTemp')
+    folderDir = os.path.join(APP_ROOT, 'src', 'static', 'uploadsTemp')
+    images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'uploadsTemp'))
     images = [image for image in images if '.DS_Store' not in image]
 
     if len(images) > 0:
@@ -80,35 +81,37 @@ def recognize():
             fileDir = os.path.join(folderDir, str(file))
             os.unlink(fileDir)
 
-        if not os.path.isdir("../dataset/recognized"):
-            os.mkdir("../dataset/recognized")
-        images = os.listdir('static/gallery')
-        if images and images[0] == ".DS_Store":
-            del images[0]
+        if not os.path.isdir(os.path.join(APP_ROOT, 'dataset', 'recognized')):
+            os.mkdir(os.path.join(APP_ROOT, 'dataset', 'recognized'))
+        images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
+        images = [image for image in images if '.DS_Store' not in image]
         images = ['gallery/' + file for file in images]
         counter = 1
-        f = open('../dataset/recognized/recognized.txt', 'w+')
+        f = open(os.path.join(APP_ROOT, 'dataset', 'recognized', 'recognized.txt'), 'w+')
         f.write("")
         f.close()
         if images:
             images.sort()
-            print(str(images))
-            for image in images:
-                print("---------------------------Recognizing: " + str(counter) + "/" + str(
-                    len(images)) + "---------------------------------")
-                call = str('python main.py --wordbeamsearch')
-                srcDir = os.path.join(APP_ROOT, 'static/' + image)
-                saveDir = os.path.join(APP_ROOT, '../dataset/test.png')
-                copyfile(srcDir, saveDir)
-                os.system(call)
-                os.unlink(saveDir)
-                counter += 1
+        print(str(images))
+        for image in images:
+            print("--------------------------- "
+                  "Recognizing: {}/{}"
+                  " ---------------------------------".format(counter, len(images)))
+            counter += 1
+
+        call = str('python main.py --wordbeamsearch')
+        srcDir = os.path.join(APP_ROOT, 'src', 'static', image)
+        saveDir = os.path.join(APP_ROOT, 'dataset', 'test.png')
+        copyfile(srcDir, saveDir)
+        os.system(call)
+        os.unlink(saveDir)
+        counter += 1
 
         print("---------------------------Recognition Ended---------------------------------")
 
-    images = os.listdir('static/gallery')
-    for image in images:
-        os.unlink(os.path.join(APP_ROOT, 'static/gallery/' + image))
+        images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
+        for image in images:
+            os.unlink(os.path.join(APP_ROOT, 'src', 'static', 'gallery', image))
 
     return render_template('upload.html')
 
@@ -116,12 +119,12 @@ def recognize():
 @app.route("/segment", methods=['POST', 'GET'])
 def segment():
     print("---------------------------Segmentation Started---------------------------------")
-    folderDir = os.path.join(APP_ROOT, 'static/uploadsTemp')
-    images = os.listdir('static/uploadsTemp')
+    folderDir = os.path.join(APP_ROOT, 'src', 'static', 'uploadsTemp')
+    if not os.path.isdir(folderDir):
+        os.mkdir(folderDir)
+    images = os.listdir(folderDir)
     images = [image for image in images if '.DS_Store' not in image]
     if images:
-        if images[0] == ".DS_Store":
-            del images[0]
         for file in images:
             print("Segmenting: " + str(file))
             filename = str(file)
@@ -133,13 +136,12 @@ def segment():
             os.unlink(fileDir)
 
         print("---------------------------Segmentation Ended---------------------------------")
-
-        images = os.listdir('static/gallery')
+        gallery_path = os.path.join(APP_ROOT, 'src', 'static', 'gallery')
+        if not os.path.isdir(gallery_path):
+            os.mkdir(gallery_path)
+        images = os.listdir(gallery_path)
         images = [image for image in images if '.DS_Store' not in image]
-        if images and images[0] == ".DS_Store":
-            del images[0]
         images = ['gallery/' + file for file in images]
-
         if images:
             return render_template('gallery.html', images=images)
         else:
@@ -157,18 +159,16 @@ def augment():
     f.write("")
     f.close()
     print("---------------------------Augmentation Started---------------------------------")
-    files = os.listdir('../dataset/segmented')
+    files = os.listdir(os.path.join(APP_ROOT, 'dataset', 'segmented'))
     files = [file for file in files if '.DS_Store' not in file]
     if files:
-        if files[0] == ".DS_Store":
-            del files[0]
         counter = 0
         for file in files:
             os.system('python dataGenerator.py ' + file + ' | tee -a')
             # for multithreading, use the line below
             # command1 = subprocess.Popen(['python', 'dataGenerator.py', file, '| tee -a output.txt'])
             counter += 1
-            print("Augmenting (" + str(counter) + ") files")
+            print("Augmenting ({}) files".format(counter))
         print("loading...")
         print("---------------------------Augmentation Ended---------------------------------")
 
@@ -179,8 +179,8 @@ def augment():
 def generateDB():
     print("---------------------------Generating DB Starting---------------------------------")
     os.system('python dbwriter.py')
-    count = len(open("../dataset/words.txt").readlines())
-    print("Total of (" + str(count) + ") images in the database")
+    count = len(open("dataset','words.txt").readlines())
+    print("Total of ({}) images in the database".format(count))
 
     print("---------------------------Generating DB Ended---------------------------------")
 
@@ -197,14 +197,13 @@ def train():
 
 @app.route("/remove", methods=['POST'])
 def remove():
-    target = os.path.join(APP_ROOT, "static/" + request.form.get('image'))
+    target = os.path.join(APP_ROOT, 'src', 'static', request.form.get('image'))
     os.remove(target)
-    print("Image : (" + request.form.get('image') + ") is DELETED !!")
-    images = os.listdir('static/gallery')
-    if images[0] == ".DS_Store":
-        del images[0]
+    print('Image : ({}) is DELETED!!'.format(request.form.get('image')))
+    images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
+    images = [image for image in images if '.DS_Store' not in image]
     images = ['gallery/' + file for file in images]
-    if (len(images) > 1):
+    if images:
         return render_template('gallery.html', images=images)
     else:
         return render_template('gallery.html')
@@ -212,26 +211,23 @@ def remove():
 
 @app.route("/save", methods=['POST'])
 def save():
-    target = os.path.join(APP_ROOT, "static/" + request.form.get('image'))
-    src = os.path.join(APP_ROOT, "static/" + request.form.get('image'))
-    root = APP_ROOT.replace('/src', '')
+    target = os.path.join(APP_ROOT, 'src', 'static', request.form.get('image'))
+    src = os.path.join(APP_ROOT, 'src', 'static', request.form.get('image'))
     dest = request.form.get('image').replace('gallery', '')
     print("dest:" + dest)
-    dst2 = str(root + "/dataset/segmented/" + request.form.get('targetText'))
+    dst2 = os.path.join(APP_ROOT, 'dataset', 'segmented' + request.form.get('targetText'))
     if not os.path.exists(dst2):
         os.makedirs(dst2)
     files = os.listdir(dst2)
     counter = len(files)
-    dst = str(
-        root + "/dataset/segmented/" + request.form.get('targetText') + "/" + request.form.get(
-            'targetText') + "_" + str(counter) + ".png")
+    dst = os.path.join(APP_ROOT, 'dataset', 'segmented', request.form.get('targetText'), request.form.get(
+        'targetText')) + "_" + str(counter) + ".png"
     copyfile(src, dst)
-    print("Image: (" + request.form.get('image') + ") is labeled as: (" + request.form.get('targetText') + ")")
+    print("Image: ({}) is labeled as: ({})".format(request.form.get('image'), request.form.get('targetText')))
     os.remove(target)
-    images = os.listdir('static/gallery')
+    images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
     if len(images) > 0:
-        if images[0] == ".DS_Store":
-            del images[0]
+        images = [image for image in images if '.DS_Store' not in image]
         images = ['gallery/' + file for file in images]
         return render_template('gallery.html', images=images)
     return render_template('gallery.html')
@@ -240,20 +236,18 @@ def save():
 @app.route("/deleteAll", methods=['POST'])
 def deleteAll():
     print("---------------------------Deleting All Started---------------------------------")
-    folderDir = os.path.join(APP_ROOT, 'static/gallery')
-    images = os.listdir('static/gallery')
+    folderDir = os.path.join(APP_ROOT, 'src', 'static', 'gallery')
+    if not os.path.isdir(folderDir):
+        os.mkdir(folderDir)
+    images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
     images = [image for image in images if '.DS_Store' not in image]
     if len(images) > 0:
-        if images[0] == ".DS_Store":
-            del images[0]
         for file in images:
             print("Deleteing : " + str(file))
             fileDir = os.path.join(folderDir, str(file))
             os.unlink(fileDir)
-        images = os.listdir('static/gallery')
+        images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
         if len(images) > 0:
-            if images[0] == ".DS_Store":
-                del images[0]
             images = ['gallery/' + file for file in images]
             return render_template('gallery.html', images=images)
     print("---------------------------Deleting All Ended---------------------------------")
@@ -271,7 +265,7 @@ def terminal():
         data_list[idx] = data_list[idx].replace(',', ' ')
         data_list[idx] = data_list[idx] + "<br />"
         data_list[idx] = data_list[idx].replace('<br />', '<br />')
-    if (file_len(outputFile) > 10):
+    if file_len(outputFile) > 10:
         del data_list[0:1]
         fw = open(outputFile, 'w+')
         fw.writelines(data_list)
@@ -281,7 +275,7 @@ def terminal():
 
 @app.route("/targets", methods=['POST'])
 def targetText():
-    images = os.listdir('static/gallery')
+    images = os.listdir(os.path.join(APP_ROOT, 'src', 'static', 'gallery'))
     images = [image for image in images if '.DS_Store' not in image]
     images = ['gallery/' + file for file in images]
     return render_template('gallery.html', images=images)
