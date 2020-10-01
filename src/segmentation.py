@@ -68,13 +68,13 @@ if (len(sys.argv) > 2):
 
 img_row_sum = np.sum(gray_complete, axis=1).tolist()
 
-gray_complete = cv2.adaptiveThreshold(gray_complete, 255, cv2.ADAPTIVE_THRESH_MEAN_C, \
+gray_complete = cv2.adaptiveThreshold(gray_complete, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
                                       cv2.THRESH_BINARY, 171, 90)
-ret, gray_complete = cv2.threshold(gray_complete, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+_, gray_complete = cv2.threshold(gray_complete, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 ret, gray_complete_inv = cv2.threshold(gray_complete, 0, 255, cv2.THRESH_BINARY_INV)
 
-#if not os.path.exists("../dataset/segmented/" + image):
- #   os.makedirs("../dataset/segmented/" + image)
+# if not os.path.exists("../dataset/segmented/" + image):
+#   os.makedirs("../dataset/segmented/" + image)
 if not os.path.exists("../dataset/segmented"):
     os.makedirs("../dataset/segmented")
 if not os.path.exists("../dataset/rawGS"):
@@ -82,9 +82,10 @@ if not os.path.exists("../dataset/rawGS"):
 # cv2.imwrite("../dataset/results/"+image+"/"+image+"_grayscale.png", gray_complete)
 
 height, width = gray_complete.shape
-
-(_, cnts, _) = cv2.findContours(gray_complete_inv.copy(), cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_SIMPLE)
+print(gray_complete_inv.copy())
+print(cv2.RETR_EXTERNAL)
+print(cv2.CHAIN_APPROX_SIMPLE)
+cnts, _ = cv2.findContours(gray_complete_inv.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 avgCntArea = np.mean([cv2.contourArea(k) for k in cnts])
 if (invert):
     print("Images will be inverted !!")
@@ -130,8 +131,9 @@ for (i, c) in enumerate(cnts):
         digit = shifted
         ret, digit = cv2.threshold(digit, 0, 255, cv2.THRESH_BINARY_INV)
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.rectangle(recognized_complete, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(recognized_complete, str(id), (x + int(w / 6), y + h + 20),font, fontScale=0.8, color=(0, 0, 128), thickness=4)
+        cv2.rectangle(recognized_complete, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(recognized_complete, str(id), (x + int(w / 6), y + h + 20), font, fontScale=0.8, color=(0, 0, 128),
+                    thickness=4)
         # cv2.imwrite("results/"+image+"/"+image+"_"+str(i)+".png", digit)
     if (len(sys.argv) > 4):
         if invert:
@@ -142,11 +144,10 @@ for (i, c) in enumerate(cnts):
         if invert:
             ret, segmented = cv2.threshold(segmented, 0, 255, cv2.THRESH_BINARY_INV)
         #  cv2.imwrite("../dataset/segmented/"+image+"/"+image+"_"+str(id)+".png", segmented)
-        if id<10:
+        if id < 10:
             cv2.imwrite("static/gallery/" + image + "_00" + str(id) + ".png", segmented)
         else:
             cv2.imwrite("static/gallery/" + image + "_0" + str(id) + ".png", segmented)
-
 
 cv2.imwrite("../dataset/recognized/recognized.png", recognized_complete)
 

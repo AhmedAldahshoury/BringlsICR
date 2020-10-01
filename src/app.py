@@ -47,19 +47,25 @@ def recognize():
     f = open('../model/wordCharList.txt', 'w+')
 
     folders = os.listdir('../dataset/segmented')
+    folders = [folder for folder in folders if '.DS_Store' not in folder]
     for folder in folders:
         files = os.listdir('../dataset/segmented/' + str(folder))
+        files = [file for file in files if '.DS_Store' not in file]
         if len(files) > threshold:
             f.write("%s\n" % folder)
     f.close()
 
     images = os.listdir('static/gallery')
+    images = [image for image in images if '.DS_Store' not in image]
+
     for image in images:
         os.unlink(os.path.join(APP_ROOT, 'static/gallery/' + image))
 
     print("---------------------------Recognition Started---------------------------------")
     folderDir = os.path.join(APP_ROOT, 'static/uploadsTemp')
     images = os.listdir('static/uploadsTemp')
+    images = [image for image in images if '.DS_Store' not in image]
+
     if len(images) > 0:
 
         if images[0] == ".DS_Store":
@@ -77,14 +83,14 @@ def recognize():
         if not os.path.isdir("../dataset/recognized"):
             os.mkdir("../dataset/recognized")
         images = os.listdir('static/gallery')
-        if images[0] == ".DS_Store":
+        if images and images[0] == ".DS_Store":
             del images[0]
         images = ['gallery/' + file for file in images]
         counter = 1
         f = open('../dataset/recognized/recognized.txt', 'w+')
         f.write("")
         f.close()
-        if (len(images) > 1):
+        if images:
             images.sort()
             print(str(images))
             for image in images:
@@ -112,8 +118,8 @@ def segment():
     print("---------------------------Segmentation Started---------------------------------")
     folderDir = os.path.join(APP_ROOT, 'static/uploadsTemp')
     images = os.listdir('static/uploadsTemp')
-    if len(images) > 0:
-
+    images = [image for image in images if '.DS_Store' not in image]
+    if images:
         if images[0] == ".DS_Store":
             del images[0]
         for file in images:
@@ -129,11 +135,12 @@ def segment():
         print("---------------------------Segmentation Ended---------------------------------")
 
         images = os.listdir('static/gallery')
-        if images[0] == ".DS_Store":
+        images = [image for image in images if '.DS_Store' not in image]
+        if images and images[0] == ".DS_Store":
             del images[0]
         images = ['gallery/' + file for file in images]
 
-        if (len(images) > 1):
+        if images:
             return render_template('gallery.html', images=images)
         else:
             return render_template('gallery.html')
@@ -151,7 +158,8 @@ def augment():
     f.close()
     print("---------------------------Augmentation Started---------------------------------")
     files = os.listdir('../dataset/segmented')
-    if len(files) > 0:
+    files = [file for file in files if '.DS_Store' not in file]
+    if files:
         if files[0] == ".DS_Store":
             del files[0]
         counter = 0
@@ -186,6 +194,7 @@ def train():
     print("---------------------------Training Ended---------------------------------")
     return render_template("train.html")
 
+
 @app.route("/remove", methods=['POST'])
 def remove():
     target = os.path.join(APP_ROOT, "static/" + request.form.get('image'))
@@ -199,6 +208,7 @@ def remove():
         return render_template('gallery.html', images=images)
     else:
         return render_template('gallery.html')
+
 
 @app.route("/save", methods=['POST'])
 def save():
@@ -232,6 +242,7 @@ def deleteAll():
     print("---------------------------Deleting All Started---------------------------------")
     folderDir = os.path.join(APP_ROOT, 'static/gallery')
     images = os.listdir('static/gallery')
+    images = [image for image in images if '.DS_Store' not in image]
     if len(images) > 0:
         if images[0] == ".DS_Store":
             del images[0]
@@ -247,6 +258,7 @@ def deleteAll():
             return render_template('gallery.html', images=images)
     print("---------------------------Deleting All Ended---------------------------------")
     return render_template('gallery.html')
+
 
 @app.route("/terminal", methods=['GET', 'POST'])
 def terminal():
@@ -270,8 +282,7 @@ def terminal():
 @app.route("/targets", methods=['POST'])
 def targetText():
     images = os.listdir('static/gallery')
-    if images[0] == ".DS_Store":
-        del images[0]
+    images = [image for image in images if '.DS_Store' not in image]
     images = ['gallery/' + file for file in images]
     return render_template('gallery.html', images=images)
 
